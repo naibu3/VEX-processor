@@ -1,27 +1,21 @@
 """
-This module implements a class to parse VEX files in CSAF format.
+This module extends vex_parser class to parse VEX files in CSAF format.
 """
 
 import json
 import logging
+from .vex_parser import VEX_Parser
 
 logging.basicConfig(level=logging.INFO)
 
-class CSAFParser:
-
-    def __init__(self):
-        self.statements = []
-
-    def get_statements(self):
-        return self.statements
+class CSAFParser(VEX_Parser):
 
     def parse(self, document):
         """
-        Parse a CSAF VEX document and return a list of VEX statements.
+        Parse a CSAF VEX document and store in self `statements` attribute a list of VEX statements.
         
         Args:
-
-        Returns:
+            document (file descriptor): The document to be parsed.
         """
         data = json.loads(document)
         statements = []
@@ -43,17 +37,15 @@ class CSAFParser:
             
             for status, products in statuses.items():
 
-                for product in products:
-
-                    print(status + " -> " + products[1])
-
-                    statements.append({
-                        "product_id": product,
-                        "vulnerability_id": vuln_id,
-                        "status": status,
-                        "timestamp": timestamp
-                        #"recommendations": recommended  # Add recommendations
-                    })
+                if status != "recommended":
+                    for product in products:
+                        statements.append({
+                            "product_id": product,
+                            "vulnerability_id": vuln_id,
+                            "status": status,
+                            "timestamp": timestamp
+                            #"recommendations": recommended  # Add recommendations
+                        })
 
         # If no vulnerabilities are defined, check for CVE metadata in the tracking field
         if not statements and "document" in data and "tracking" in data.get("document", {}):

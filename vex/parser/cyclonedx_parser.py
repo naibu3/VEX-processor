@@ -3,8 +3,10 @@ This module implements a class to parse VEX files in CycloneDX format.
 """
 
 import json
+import logging
+from .vex_parser import VEX_Parser
 
-class CycloneDXParser:
+class CycloneDXParser(VEX_Parser):
     def parse(self, document):
         data = json.loads(document)
         statements = []
