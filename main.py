@@ -1,7 +1,10 @@
 import argparse
+import logging
 from vex.parser.csaf_parser import CSAFParser
-#from vex.parser.cyclonedx_parser import CycloneDXParser
-#from vex.parser.openvex import OpenVEXParser
+from vex.parser.cyclonedx_parser import CycloneDXParser
+from vex.utils import detect_vex_format
+
+#from vex.parser.openvex_parser import OpenVEXParser
 #from vex.db.operations import save_vex_statements
 
 def main():
@@ -10,22 +13,28 @@ def main():
     parser.add_argument("-x", "--format", required=False, choices=["csaf", "cyclonedx", "openvex"], help="VEX format", default="csaf")
     args = parser.parse_args()
 
-    with open(args.file, "r") as f:
-        document = f.read()
-
     if args.format == "csaf":
-        parser = CSAFParser()
+        parser = CSAFParser(args.file)
     elif args.format == "cyclonedx":
-        #parser = CycloneDXParser()
+        parser = CycloneDXParser(args.file)
         pass
     elif args.format == "openvex":
-        #parser = OpenVEXParser()
+        #parser = OpenVEXParser(args.file)
         pass
+    else:
+        parser = detect_vex_format(args.file)
 
-    parser.parse(document)
+
+    parser.parse()
     #save_vex_statements(statements)
-    for statement in parser.get_statements():
+
+    statements =  parser.get_statements();
+
+    for statement in statements:
         print(statement["product_id"] + " [" + statement["status"]+ "] by " + statement["vulnerability_id"])
+    logging.info("Statuses: " + str(len(statement)) )
+    logging.info("Vulns: " + str(len(parser.get_vulnerabilities())) )
+    logging.info("Products: " + str(len(parser.get_affected_products())) )
 
 if __name__ == "__main__":
     main()

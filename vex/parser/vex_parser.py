@@ -2,41 +2,40 @@
 This module implements a base class to parse VEX files.
 """
 import logging
+import json
+
 
 logging.basicConfig(level=logging.INFO)
 
 class VEX_Parser:
 
     def __init__(self):
-        self.statements = []
 
-    def get_statements(self):
-        """
-        Gets parsed data.
+        self.metadata = {}
+        self.product = {}
+        self.vulns = []
 
-        Returns:
-            dict: A dictionary with VEX statements.
-        """
-        return self.statements
-
-    def get_affected_products(self):
-        products = []
-        for statement in self.statements:
-            products.append(statement["product_id"])
+    def parse(self, filename):
+        try:
+            with open(filename, "r") as f:
+                self.document = f.read()
+        except:
+            raise FileNotFoundError
         
-        return products
+        self.vex_data = json.load(self.document)
+        self.metadata = {}
+        self.product = {}
+        self.vulns = []
+
+        self._extract_metadata()
+        self._extract_product()
+        self._extract_vulns()
+        
+    def get_metadata(self):
+        return self.metadata
+
+    def get_product(self):
+        return self.product
 
     def get_vulnerabilities(self):
-        vulns = []
-        for statement in self.statements:
-            vulns.append(statement["vulnerability_id"])
-        
-        return vulns
-
-    def get_statement(self, product_id):
-        for statement in self.statements:
-            if statement["product_id"] == product_id:
-                return statement
-        
-        logging.warning(f"No information was found in VEX file for {product_id}")
-        return None
+        return self.vulnerabilities

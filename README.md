@@ -19,3 +19,20 @@ The processor convert files to a python dictionary with the following informatio
 - `recommendations`, not available yet
 
 Once parsed the information is returned in a list of dictionaries for each affected product for a vulnerability.
+
+## Instalation
+
+It is reccomended to install a virtual environment:
+
+```
+python -m venv vex_processor
+
+source vex_processor/bin/activate # linux
+vex_processor\Scripts\activate # Windows
+```
+
+Then we install the followinng packages:
+
+```bash
+pip install lib4sbom packageurl-python
+```

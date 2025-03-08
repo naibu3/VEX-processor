@@ -7,8 +7,8 @@ import logging
 from .vex_parser import VEX_Parser
 
 class CycloneDXParser(VEX_Parser):
-    def parse(self, document):
-        data = json.loads(document)
+    def parse(self):
+        data = json.loads(self.document)
         statements = []
 
         for vuln in data.get("vulnerabilities", []):
