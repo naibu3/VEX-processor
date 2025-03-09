@@ -9,8 +9,6 @@ from .vex_parser import *
 from lib4sbom.data.vulnerability import Vulnerability
 from packageurl import PackageURL
 
-logging.basicConfig(level=logging.INFO)
-
 class CSAFParser(VEX_Parser):
 
     def __init__(self):
@@ -25,51 +23,86 @@ class CSAFParser(VEX_Parser):
 
         for vulnerability in self.vex_data["vulnerabilities"]:
             vuln.initialise() #Initialise vulnerability lib4sbom object
-            vuln.set_id(vulnerability["cve"])
+
+            if vulnerability["cve"]:
+                vuln.set_id(vulnerability["cve"])
+            else:
+                vuln.set_id(vulnerability["ids"])
 
             if "title" in vulnerability:
                 vuln.set_value("title", vulnerability["title"])
-            if "cwe" in vulnerability:
-                vuln.set_value("cwe",f"{vulnerability['cwe']['id']} - {vulnerability['cwe']['name']}")
             if "notes" in vulnerability:
                 for note in vulnerability["notes"]:
                     vuln.set_value("description", note["text"])
-            if "discovery_date" in vulnerability:
-                vuln.set_value("discovery_date", vulnerability["discovery_date"])
-            if "flags" in vulnerability:
-                for flag in vulnerability["flags"]:
-                    if "label" in flag:
-                        vuln.set_value("justification", flag["label"])
-                    vuln.set_value("created", flag["date"])
-                    for product in flag["product_ids"]:
-                        vuln.set_value("Product", product)
-            if "ids" in vulnerability:
-                for id in vulnerability["ids"]:
-                    #vuln.set_value("system_name", vulnerability["text"])
-                    pass
-            if "references" in vulnerability:
-                for reference in vulnerability["references"]:
-                    vuln.set_value(reference["category"], [reference.get("summary",""), reference.get("url","")])
-            if "release_date" in vulnerability:
-                vuln.set_value("release_date", vulnerability["release_date"])
-            if "threats" in vulnerability:
-                for threat in vulnerability["threats"]:
-                    vuln.set_value(threat["category"], threat["details"])
+
+            # These fields are not required as can be accessed throught the official CVE page
+            #if "cwe" in vulnerability:
+            #    vuln.set_value("cwe",f"{vulnerability['cwe']['id']} - {vulnerability['cwe']['name']}")
+            #if "discovery_date" in vulnerability:
+            #    vuln.set_value("discovery_date", vulnerability["discovery_date"])
+            #if "references" in vulnerability:
+            #    for reference in vulnerability["references"]:
+            #        vuln.set_value(reference["category"], [reference.get("summary",""), reference.get("url","")])
+            #if "release_date" in vulnerability:
+            #    vuln.set_value("release_date", vulnerability["release_date"])
+
             if "product_status" in vulnerability:
-                for product_status in vulnerability["product_status"]:
-                    vuln.set_value("status", product_status)
-            if "remediations" in vulnerability:
-                for remediation in vulnerability["remediations"]:
-                    vuln.set_remediation(remediation["category"])
-                    vuln.set_action(remediation["details"])
+                # Extract lists with products for each status
+                statuses = vulnerability.get("product_status", {})
+                
+                for status, products in statuses.items():
+                    
+                    product_list = []
+                    if status != "recommended":
+                        for product in products:
+                            product_list.append(product)
+
+                    vuln.set_value(status, products)
+
+                    # Specific status fields - TODO
+
+                    if status == "known_affected":
+                        # additional product specific information SHALL be provided in
+                        # /vulnerabilities[]/remediations as an action statement.
+
+                        # Optional, additional information MAY also be provide through
+                        # /vulnerabilities[]/notes and /vulnerabilities[]/threats.
+                        pass
+
+                    if status == "known_not_affected":
+                        # An impact statement SHALL exist as machine readable flag in /vulnerabilities[]/flags
+
+                        # or as human readable justification in /vulnerabilities[]/threats. For the latter one, the category 
+                        # value for such a statement MUST be impact and the details field SHALL contain a a description why
+                        # the vulnerability cannot be exploited.
+                        pass
+
+            # if "flags" in vulnerability:
+            #     for flag in vulnerability["flags"]:
+            #         if "label" in flag:
+            #             vuln.set_value("justification", flag["label"])
+            #         vuln.set_value("created", flag["date"])
+            #         for product in flag["product_ids"]:
+            #             vuln.set_value("Product", product)
+
+            # if "threats" in vulnerability:
+            #     for threat in vulnerability["threats"]:
+            #         vuln.set_value(threat["category"], threat["details"])
+            
+            # if "remediations" in vulnerability:
+            #     for remediation in vulnerability["remediations"]:
+            #         vuln.set_remediation(remediation["category"])
+            #         vuln.set_action(remediation["details"])
+
             self.vulns.append(vuln.get_vulnerability())
 
     def _extract_metadata(self):
         if len(self.vex_data) == 0:
             return
+        
         # Key attributes from the CSAF header
-
         document = self.vex_data.get("document")
+
         if document is None:
             # Doesn't look like a CSAF document
             self.vex_data = []

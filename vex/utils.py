@@ -20,23 +20,23 @@ def detect_vex_format(file_path):
             # Try parsing as JSON (CSAF, CycloneDX, and OpenVEX are JSON-based)
             try:
                 data = json.loads(content)
-                if isinstance(data, dict):
-                    # Check for CSAF
-                    if 'document' in data and 'category' in data['document'] and data['document']['category'] == 'csaf':
-                        logging.info("CSAF format detected.")
-                        return CSAFParser()
-                    # Check for CycloneDX (JSON format)
-                    if 'bomFormat' in data and data['bomFormat'] == 'CycloneDX':
-                        logging.info("CycloneDX format detected.")
-                        return CycloneDXParser()
-                    # Check for OpenVEX
-                    if '@context' in data and 'https://openvex.dev/ns' in data['@context']:
-                        logging.info("OpenVEX format detected.")
-                        return "openvex"
+                # Check for CSAF
+                if 'document' in data and 'category' in data['document'] and data['document']['category'] == 'csaf':
+                    logging.info("CSAF format detected.")
+                    return CSAFParser()
+                # Check for CycloneDX (JSON format)
+                if 'bomFormat' in data and data['bomFormat'] == 'CycloneDX':
+                    logging.info("CycloneDX format detected.")
+                    return CycloneDXParser()
+                # Check for OpenVEX
+                if '@context' in data and 'https://openvex.dev/ns' in data['@context']:
+                    logging.info("OpenVEX format detected.")
+                    return "openvex"
             except json.JSONDecodeError:
                 pass
 
     except Exception as e:
         print(f"Error reading file: {e}")
 
+    logging.warning("No format detected.")
     return "Unknown"

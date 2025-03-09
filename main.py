@@ -9,10 +9,12 @@ from vex.utils import detect_vex_format
 
 #from vex.db.operations import save_vex_statements
 
+logging.basicConfig(level=logging.INFO)
+
 def show_vulnerability(vuln):
     """Show vuln info."""
-    print(f"Vulnerability Details for {vuln["cve"]}")
-    print(f"  Title: {vuln["title"]}")
+    print(f"Vulnerability Details for {vuln['cve']}")
+    print(f"  Title: {vuln['title']}")
     #print(f"  Source: {vuln.source}")
     #print(f"  Description: {vuln.description}")
     #print(f"  Severity: {vuln.severity}")
@@ -22,7 +24,7 @@ def show_vulnerability(vuln):
 def main():
     parser = argparse.ArgumentParser(description="VEX Parser")
     parser.add_argument("-f", "--file", required=True, help="Path to the VEX document")
-    parser.add_argument("-x", "--format", required=False, choices=["csaf", "cyclonedx", "openvex"], help="VEX format", default="auto")
+    parser.add_argument("-x", "--format", required=False, choices=["csaf", "cyclonedx", "openvex"], help="VEX format", default="")
     args = parser.parse_args()
 
     if args.format == "csaf":
@@ -36,14 +38,14 @@ def main():
         logging.info("OpenVEX format selected.")
         pass
     else:
+        logging.info("No format specified, trying to auto-detection.")
         parser = detect_vex_format(args.file)
 
 
     parser.parse(args.file)
     vulns =  parser.get_vulnerabilities()
 
-    for vuln in vulns:
-        print(vuln)
+    print(vulns)
 
 if __name__ == "__main__":
     main()

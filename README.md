@@ -36,3 +36,12 @@ Then we install the followinng packages:
 ```bash
 pip install lib4sbom packageurl-python
 ```
+
+## TODOs
+
+- [ ] Fix format detection
+- [ ] Enhance info. display
+- [x] Implement CSAF parsing
+    + [ ] Parse extra information about vulns
+- [ ] Implement CycloneDX parsing
+- [ ] Implement OpenVEX parsing
