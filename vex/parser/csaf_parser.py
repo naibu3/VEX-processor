@@ -13,14 +13,17 @@ logging.basicConfig(level=logging.INFO)
 
 class CSAFParser(VEX_Parser):
 
+    def __init__(self):
+        super().__init__()
+
     def _extract_vulns(self):
 
-        if len(self.data) == 0:
+        if len(self.vex_data) == 0:
             return None
         
         vuln = Vulnerability(validation="csaf")
 
-        for vulnerability in self.data["vulnerabilities"]:
+        for vulnerability in self.vex_data["vulnerabilities"]:
             vuln.initialise() #Initialise vulnerability lib4sbom object
             vuln.set_id(vulnerability["cve"])
 
@@ -42,7 +45,8 @@ class CSAFParser(VEX_Parser):
                         vuln.set_value("Product", product)
             if "ids" in vulnerability:
                 for id in vulnerability["ids"]:
-                    vuln.set_value("system_name", vulnerability["text"])
+                    #vuln.set_value("system_name", vulnerability["text"])
+                    pass
             if "references" in vulnerability:
                 for reference in vulnerability["references"]:
                     vuln.set_value(reference["category"], [reference.get("summary",""), reference.get("url","")])
@@ -58,17 +62,17 @@ class CSAFParser(VEX_Parser):
                 for remediation in vulnerability["remediations"]:
                     vuln.set_remediation(remediation["category"])
                     vuln.set_action(remediation["details"])
-            self.vulnerabilities.append(vuln.get_vulnerability())
+            self.vulns.append(vuln.get_vulnerability())
 
-    def _process_metadata(self):
-        if len(self.data) == 0:
+    def _extract_metadata(self):
+        if len(self.vex_data) == 0:
             return
         # Key attributes from the CSAF header
 
-        document = self.data.get("document")
+        document = self.vex_data.get("document")
         if document is None:
             # Doesn't look like a CSAF document
-            self.data = []
+            self.vex_data = []
             return
         
         self.metadata["version"] = document["csaf_version"]
@@ -85,14 +89,14 @@ class CSAFParser(VEX_Parser):
             self.metadata["notes"] = notes
         if "publisher" in document:
             publisher_info = (
-                f"{self.data['document']['publisher']['name']} "
-                f"{self.data['document']['publisher']['namespace']}"
+                f"{self.vex_data['document']['publisher']['name']} "
+                f"{self.vex_data['document']['publisher']['namespace']}"
             )
             self.metadata["publisher"] = publisher_info
-            self.metadata["author"] = self.data['document']['publisher']['name']
-            self.metadata["author_url"] = self.data['document']['publisher']['namespace']
-            if "contact_details" in self.data['document']['publisher']:
-                self.metadata["contact_details"] = self.data['document']['publisher']['contact_details']
+            self.metadata["author"] = self.vex_data['document']['publisher']['name']
+            self.metadata["author_url"] = self.vex_data['document']['publisher']['namespace']
+            if "contact_details" in self.vex_data['document']['publisher']:
+                self.metadata["contact_details"] = self.vex_data['document']['publisher']['contact_details']
         if "tracking" in document:
             if "generator" in document["tracking"]:
                 generator_version = "UNKNOWN"
@@ -103,7 +107,7 @@ class CSAFParser(VEX_Parser):
                     generator_version = document["tracking"]["generator"][
                         "engine"
                     ]["version"]
-                self.metadata["generator"] = f"{self.data['document']['tracking']['generator']['engine']['name']} version {generator_version}"
+                self.metadata["generator"] = f"{self.vex_data['document']['tracking']['generator']['engine']['name']} version {generator_version}"
             self.metadata["id"] = document["tracking"]["id"]
             self.metadata["initial_release_date"] = document["tracking"]["initial_release_date"]
             if "revision_history" in document["tracking"]:
@@ -122,18 +126,18 @@ class CSAFParser(VEX_Parser):
         if "distribution" in document:
             distribution_info = ""
             if "text" in document["distribution"]:
-                distribution_info = f"{self.data['document']['distribution']['text']}"
+                distribution_info = f"{self.vex_data['document']['distribution']['text']}"
             if "tlp" in document["distribution"]:
                 distribution_info = (
                         distribution_info
-                        + f" TLP: {self.data['document']['distribution']['tlp']['label']}"
+                        + f" TLP: {self.vex_data['document']['distribution']['tlp']['label']}"
                 )
             self.metadata["distribution"] = distribution_info
 
-    def _process_product(self):
-        if len(self.data) == 0:
+    def _extract_product(self):
+        if len(self.vex_data) == 0:
             return
-        product = self.data["product_tree"]
+        product = self.vex_data["product_tree"]
         for d in product["branches"]:
             element = {}
             self._process_branch(d, element)

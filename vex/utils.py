@@ -1,16 +1,17 @@
 import json
+import logging
 from vex.parser.csaf_parser import CSAFParser
 from vex.parser.cyclonedx_parser import CycloneDXParser
 
 def detect_vex_format(file_path):
     """
-    Detects if the file is in CSAF, CycloneDX, or OpenVEX format.
+    Detects if the file is in CSAF, CycloneDX, or OpenVEX format and creates the propper parser.
     
     Args:
         file_path (str): Path to the file to be checked.
     
     Returns:
-        str: The format of the file ("CSAF", "CycloneDX", "OpenVEX", or "Unknown").
+        vex_parser: A parser object for the detected format.
     """
     try:
         with open(file_path, 'r', encoding='utf-8') as file:
@@ -22,12 +23,15 @@ def detect_vex_format(file_path):
                 if isinstance(data, dict):
                     # Check for CSAF
                     if 'document' in data and 'category' in data['document'] and data['document']['category'] == 'csaf':
-                        return CSAFParser(file_path)
+                        logging.info("CSAF format detected.")
+                        return CSAFParser()
                     # Check for CycloneDX (JSON format)
                     if 'bomFormat' in data and data['bomFormat'] == 'CycloneDX':
-                        return CycloneDXParser(file_path)
+                        logging.info("CycloneDX format detected.")
+                        return CycloneDXParser()
                     # Check for OpenVEX
                     if '@context' in data and 'https://openvex.dev/ns' in data['@context']:
+                        logging.info("OpenVEX format detected.")
                         return "openvex"
             except json.JSONDecodeError:
                 pass

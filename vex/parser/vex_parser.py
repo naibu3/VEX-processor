@@ -17,8 +17,7 @@ class VEX_Parser:
 
     def parse(self, filename):
         try:
-            with open(filename, "r") as f:
-                self.document = f.read()
+                self.document = open(filename, "r")
         except:
             raise FileNotFoundError
         
@@ -38,4 +37,4 @@ class VEX_Parser:
         return self.product
 
     def get_vulnerabilities(self):
-        return self.vulnerabilities
+        return self.vulns
