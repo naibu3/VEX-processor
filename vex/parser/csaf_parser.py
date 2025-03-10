@@ -29,8 +29,6 @@ class CSAFParser(VEX_Parser):
             else:
                 vuln.set_id(vulnerability["ids"])
 
-            if "title" in vulnerability:
-                vuln.set_value("title", vulnerability["title"])
             if "notes" in vulnerability:
                 for note in vulnerability["notes"]:
                     vuln.set_value("description", note["text"])
@@ -53,9 +51,9 @@ class CSAFParser(VEX_Parser):
                 for status, products in statuses.items():
                     
                     product_list = []
-                    if status != "recommended":
-                        for product in products:
-                            product_list.append(product)
+                    
+                    for product in products:
+                        product_list.append(product)
 
                     vuln.set_value(status, products)
 

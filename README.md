@@ -37,6 +37,20 @@ Then we install the followinng packages:
 pip install lib4sbom packageurl-python
 ```
 
+## Testing
+
+To run tests, [pytest](https://docs.pytest.org/en/stable/getting-started.html) is required:
+
+```bash
+pip install pytest
+```
+
+Then just execute the tests:
+
+```bash
+pytest
+```
+
 ## TODOs
 
 - [ ] Fix format detection

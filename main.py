@@ -6,20 +6,11 @@ from vex.parser.cyclonedx_parser import CycloneDXParser
 #from vex.parser.openvex_parser import OpenVEXParser
 
 from vex.utils import detect_vex_format
+from vex.utils import display_vulnerability
 
 #from vex.db.operations import save_vex_statements
 
 logging.basicConfig(level=logging.INFO)
-
-def show_vulnerability(vuln):
-    """Show vuln info."""
-    print(f"Vulnerability Details for {vuln['cve']}")
-    print(f"  Title: {vuln['title']}")
-    #print(f"  Source: {vuln.source}")
-    #print(f"  Description: {vuln.description}")
-    #print(f"  Severity: {vuln.severity}")
-    #print(f"  Published Date: {vuln.published_date}")
-    #print(f"  References: {', '.join(vuln.references) if vuln.references else 'None'}")
 
 def main():
     parser = argparse.ArgumentParser(description="VEX Parser")
@@ -45,7 +36,9 @@ def main():
     parser.parse(args.file)
     vulns =  parser.get_vulnerabilities()
 
-    print(vulns)
+    for vuln in vulns:
+        #print(vuln)
+        display_vulnerability(vuln)
 
 if __name__ == "__main__":
     main()
