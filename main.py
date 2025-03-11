@@ -6,7 +6,6 @@ from vex.parser.cyclonedx_parser import CycloneDXParser
 #from vex.parser.openvex_parser import OpenVEXParser
 
 from vex.utils import detect_vex_format
-from vex.utils import display_vulnerability
 
 #from vex.db.operations import save_vex_statements
 
@@ -38,7 +37,7 @@ def main():
 
     for vuln in vulns:
         #print(vuln)
-        display_vulnerability(vuln)
+        vuln.show_vulnerability()
 
 if __name__ == "__main__":
     main()

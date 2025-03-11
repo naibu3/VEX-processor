@@ -3,12 +3,16 @@ from vex.parser.csaf_parser import CSAFParser
 
 class TestFileFormat:
 
-   def test_csaf_format(self):
-        
-        csaf_format = detect_vex_format("./test_files/csaf/cve-2022-35256.json")
+    def test_csaf_format(self):
+        csaf_format = detect_vex_format(".\\tests\\test_files\\csaf\\cve-2022-35256.json")
 
-        assert csaf_format != "Unknown"
+        print(csaf_format)
         assert type(csaf_format) == CSAFParser
+
+    def test_unknown_format(self):
+        uk_format = detect_vex_format("README.md")
+        print(uk_format)
+        assert uk_format == "Unknown"
 
 if __name__ == "__main__":
     test = TestFileFormat

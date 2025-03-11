@@ -10,19 +10,23 @@ VEX files are normally found in one of these three formats:
 - **OpenVEX**
 - **CycloneDX**
 
-The processor convert files to a python dictionary with the following information:
+The processor convert files to three lists for **Metadata**, **Products** and **Vulnerabilities**.
 
-- `product_id`, ID of the affected product
-- `vulnerability_id`, ID of the CVE
-- `status`, vulnerability status (`known_not_affected`, `known_affected`, ...)
-- `timestamp`, timestamp of the file
-- `recommendations`, not available yet
+### Metadata 
 
-Once parsed the information is returned in a list of dictionaries for each affected product for a vulnerability.
+Information about the file.
+
+### Products
+
+List of products mentioned without regarding the state.
+
+### Vulnerabilities
+
+List of described vulnerabilities (here the products are sorted by state). The vulns are described by [Vulnerability lib4sbom objects](https://github.com/anthonyharrison/lib4sbom/blob/main/lib4sbom/data/vulnerability.py) which can be returned as a python dictionary.
 
 ## Instalation
 
-It is reccomended to install a virtual environment:
+It is reccomended to install the tool in a virtual environment:
 
 ```
 python -m venv vex_processor
@@ -53,9 +57,11 @@ pytest
 
 ## TODOs
 
-- [ ] Fix format detection
+- [x] Fix format detection
 - [ ] Enhance info. display
 - [x] Implement CSAF parsing
-    + [ ] Parse extra information about vulns
+    + [ ] Parse remediations for `known_affected`
+    + [ ] Parse justification for `known_not_affected`
+    + [ ] Parse scores
 - [ ] Implement CycloneDX parsing
 - [ ] Implement OpenVEX parsing

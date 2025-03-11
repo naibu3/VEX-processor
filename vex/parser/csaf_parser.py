@@ -6,7 +6,8 @@ Credits to [@anthonyharrison](https://github.com/anthonyharrison/csaf/blob/main/
 
 import json
 from .vex_parser import *
-from lib4sbom.data.vulnerability import Vulnerability
+from vex.data.vulnerability import Vulnerability
+from vex.data.remediation import Remediation
 from packageurl import PackageURL
 
 class CSAFParser(VEX_Parser):
@@ -19,9 +20,8 @@ class CSAFParser(VEX_Parser):
         if len(self.vex_data) == 0:
             return None
         
-        vuln = Vulnerability(validation="csaf")
-
         for vulnerability in self.vex_data["vulnerabilities"]:
+            vuln = Vulnerability(validation="csaf")
             vuln.initialise() #Initialise vulnerability lib4sbom object
 
             if vulnerability["cve"]:
@@ -31,7 +31,7 @@ class CSAFParser(VEX_Parser):
 
             if "notes" in vulnerability:
                 for note in vulnerability["notes"]:
-                    vuln.set_value("description", note["text"])
+                    vuln.set_description(note["text"])
 
             # These fields are not required as can be accessed throught the official CVE page
             #if "cwe" in vulnerability:
@@ -53,27 +53,36 @@ class CSAFParser(VEX_Parser):
                     product_list = []
                     
                     for product in products:
+
                         product_list.append(product)
 
                     vuln.set_value(status, products)
 
-                    # Specific status fields - TODO
+                 # Specific status fields - TODO
 
-                    if status == "known_affected":
-                        # additional product specific information SHALL be provided in
-                        # /vulnerabilities[]/remediations as an action statement.
+                if "known_affected" in statuses:
+                    # additional product specific information SHALL be provided in
+                    # /vulnerabilities[]/remediations as an action statement.
+                    if "remediations" in vulnerability:
+                        
+                        for remediation in vulnerability["remediations"]:
+                            rem = Remediation()
+                            rem._set_category(remediation["category"])
+                            rem._set_details(remediation["details"])
+                            rem._set_products(remediation["product_ids"])
+                            vuln.add_remediation(rem)
 
-                        # Optional, additional information MAY also be provide through
-                        # /vulnerabilities[]/notes and /vulnerabilities[]/threats.
-                        pass
+                    # TODO - Optional, additional information MAY also be provide through
+                    # /vulnerabilities[]/notes and /vulnerabilities[]/threats.
+                    pass
 
-                    if status == "known_not_affected":
-                        # An impact statement SHALL exist as machine readable flag in /vulnerabilities[]/flags
+                if status == "known_not_affected":
+                    # TODO - An impact statement SHALL exist as machine readable flag in /vulnerabilities[]/flags
 
-                        # or as human readable justification in /vulnerabilities[]/threats. For the latter one, the category 
-                        # value for such a statement MUST be impact and the details field SHALL contain a a description why
-                        # the vulnerability cannot be exploited.
-                        pass
+                    # TODO - or as human readable justification in /vulnerabilities[]/threats. For the latter one, the category 
+                    # value for such a statement MUST be impact and the details field SHALL contain a a description why
+                    # the vulnerability cannot be exploited.
+                    pass
 
             # if "flags" in vulnerability:
             #     for flag in vulnerability["flags"]:
@@ -92,7 +101,7 @@ class CSAFParser(VEX_Parser):
             #         vuln.set_remediation(remediation["category"])
             #         vuln.set_action(remediation["details"])
 
-            self.vulns.append(vuln.get_vulnerability())
+            self.vulns.append(vuln)
 
     def _extract_metadata(self):
         if len(self.vex_data) == 0:
