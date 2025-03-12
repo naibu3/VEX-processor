@@ -29,10 +29,10 @@ List of described vulnerabilities (here the products are sorted by state). The v
 It is reccomended to install the tool in a virtual environment:
 
 ```
-python -m venv vex_processor
+python3 -m venv venv
 
-source vex_processor/bin/activate # linux
-vex_processor\Scripts\activate # Windows
+source venv/bin/activate # linux
+venv\Scripts\activate # Windows
 ```
 
 Then we install the followinng packages:
@@ -60,7 +60,8 @@ pytest
 - [x] Fix format detection
 - [ ] Enhance info. display
 - [x] Implement CSAF parsing
-    + [ ] Parse remediations for `known_affected`
+    + [x] Parse remediations for `known_affected`
+    + [ ] Parse extra info for remediations
     + [ ] Parse justification for `known_not_affected`
     + [ ] Parse scores
 - [ ] Implement CycloneDX parsing

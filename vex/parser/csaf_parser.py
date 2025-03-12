@@ -8,6 +8,7 @@ import json
 from .vex_parser import *
 from vex.data.vulnerability import Vulnerability
 from vex.data.remediation import Remediation
+from vex.data.justification import Justification
 from packageurl import PackageURL
 
 class CSAFParser(VEX_Parser):
@@ -77,30 +78,27 @@ class CSAFParser(VEX_Parser):
                     pass
 
                 if status == "known_not_affected":
-                    # TODO - An impact statement SHALL exist as machine readable flag in /vulnerabilities[]/flags
-
-                    # TODO - or as human readable justification in /vulnerabilities[]/threats. For the latter one, the category 
+                    # TODO - Human readable justification in /vulnerabilities[]/threats. For the latter one, the category 
                     # value for such a statement MUST be impact and the details field SHALL contain a a description why
                     # the vulnerability cannot be exploited.
-                    pass
+                    if "threats" in vulnerability:
+                        for threat in vulnerability["threats"]:
+                            if threat["category"] == "impact":
+                                justification = Justification()
+                                justification._set_category(threat["category"])
+                                justification._set_details(threat["details"])
+                                justification._set_products(threat["product_ids"])
+                                vuln.add_justification(justification)
 
-            # if "flags" in vulnerability:
-            #     for flag in vulnerability["flags"]:
-            #         if "label" in flag:
-            #             vuln.set_value("justification", flag["label"])
-            #         vuln.set_value("created", flag["date"])
-            #         for product in flag["product_ids"]:
-            #             vuln.set_value("Product", product)
-
-            # if "threats" in vulnerability:
-            #     for threat in vulnerability["threats"]:
-            #         vuln.set_value(threat["category"], threat["details"])
-            
-            # if "remediations" in vulnerability:
-            #     for remediation in vulnerability["remediations"]:
-            #         vuln.set_remediation(remediation["category"])
-            #         vuln.set_action(remediation["details"])
-
+                    # TODO - An impact statement SHALL exist as machine readable flag in /vulnerabilities[]/flags
+                    # if "flags" in vulnerability:
+                    #     for flag in vulnerability["flags"]:
+                    #         for product in flag["product_ids"]:
+                    #             justification = vuln.get_justification_product(product)
+                    #             if vuln.get_justification_product(product) != None:
+                    #                 if "label" in flag:
+                    #                     justification._set_type(flag["label"])
+                            
             self.vulns.append(vuln)
 
     def _extract_metadata(self):
