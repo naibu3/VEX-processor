@@ -91,13 +91,13 @@ class CSAFParser(VEX_Parser):
                                 vuln.add_justification(justification)
 
                     # TODO - An impact statement SHALL exist as machine readable flag in /vulnerabilities[]/flags
-                    # if "flags" in vulnerability:
-                    #     for flag in vulnerability["flags"]:
-                    #         for product in flag["product_ids"]:
-                    #             justification = vuln.get_justification_product(product)
-                    #             if vuln.get_justification_product(product) != None:
-                    #                 if "label" in flag:
-                    #                     justification._set_type(flag["label"])
+                    if "flags" in vulnerability:
+                        for flag in vulnerability["flags"]:
+                            for product in flag["product_ids"]:
+                                justification = vuln.get_justification_product(product)
+                                if justification != None:
+                                    if "label" in flag:
+                                        justification._set_type(flag["label"])
                             
             self.vulns.append(vuln)
 
