@@ -14,7 +14,8 @@ class TestCSAFParser:
         assert len(vulns) == 1
         assert vulns[0].get_id() == "CVE-2022-35256"
         assert len(vulns) == 1
-        assert "llhttp parser" in vulns[0].get_description()        
+        assert "llhttp parser" in vulns[0].get_description()
+
 
 if __name__ == "__main__":
     test = TestCSAFParser()
