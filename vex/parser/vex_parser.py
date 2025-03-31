@@ -23,18 +23,28 @@ class VEX_Parser:
         
         self.vex_data = json.load(self.document)
         self.metadata = {}
-        self.product = {}
+        self.products = {}
         self.vulns = []
 
         self._extract_metadata()
-        self._extract_product()
+        self._extract_products()
         self._extract_vulns()
         
     def get_metadata(self):
         return self.metadata
 
-    def get_product(self):
-        return self.product
+    def get_products(self):
+        return self.products
+    
+    def get_product_name(self, p_name):
+        return self.products[p_name]
+    
+    def get_product_id_name(self, p_name):
+        if self.products[p_name]["cpe"]:
+            id = self.products[p_name]["cpe"]
+        elif self.products[p_name]["purl"]:
+            id = self.products[p_name]["purl"]
+        return id
 
     def get_vulnerabilities(self):
         return self.vulns

@@ -39,5 +39,8 @@ def main():
         #print(vuln)
         vuln.show_vulnerability()
 
+    print(parser.get_product_name("SUSE Enterprise Storage 6"))
+    print(parser.get_product_name("nodejs10"))
+
 if __name__ == "__main__":
     main()
