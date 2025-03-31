@@ -3,8 +3,8 @@ from vex.parser.csaf_parser import CSAFParser
 
 class TestCSAFParser:
     def test_parse(self):
-        document = ".\\tests\\test_files\\csaf\\cve-2022-35256.json"   # Windows
-        #document = "./tests/test_files/csaf/cve-2022-35256.json"    # Linux
+        #document = ".\\tests\\test_files\\csaf\\cve-2022-35256.json"   # Windows
+        document = "./tests/test_files/csaf/cve-2022-35256.json"    # Linux
 
         parser = CSAFParser()
 

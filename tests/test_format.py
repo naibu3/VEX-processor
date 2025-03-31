@@ -4,7 +4,8 @@ from vex.parser.csaf_parser import CSAFParser
 class TestFileFormat:
 
     def test_csaf_format(self):
-        csaf_format = detect_vex_format(".\\tests\\test_files\\csaf\\cve-2022-35256.json")
+        #csaf_format = detect_vex_format(".\\tests\\test_files\\csaf\\cve-2022-35256.json") #Windows
+        csaf_format = detect_vex_format("./tests/test_files/csaf/cve-2022-35256.json")      #Linux
 
         print(csaf_format)
         assert type(csaf_format) == CSAFParser
