@@ -172,13 +172,17 @@ class CSAFParser(VEX_Parser):
                 )
             self.metadata["distribution"] = distribution_info
 
-    def _extract_product(self):
+    def _extract_products(self):
+        logging.info("Extracting products") #debug
         if len(self.vex_data) == 0:
             return
         product = self.vex_data["product_tree"]
+        #logging.info(product) #debug
         for d in product["branches"]:
             element = {}
             self._process_branch(d, element)
+        
+        #logging.info(self.product) #debug
 
     def _process_branch_element(self, branch_element, element):
         category = branch_element.get("category", None)
@@ -194,10 +198,12 @@ class CSAFParser(VEX_Parser):
                 element = self._process_branch(branch, element)
                 if "product" in branch:
                     element["product_id"] = branch["product"]["product_id"]
+                    item = {}
                     if "product_identification_helper" in branch["product"]:
                         pid = branch["product"]["product_identification_helper"]
                         if "cpe" in pid:
                             cpe_info = pid["cpe"]
+                            item["cpe"] = cpe_info
                             cpe_items = cpe_info.split(":")
                             if cpe_items[1] == "/a":
                                 # Example is cpe:/a:redhat:rhel_eus:8.2::realtime
@@ -207,8 +213,8 @@ class CSAFParser(VEX_Parser):
                                 element["product_version"] = cpe_items[5]
                         elif "purl" in pid:
                             purl_info = PackageURL.from_string(pid["purl"])
+                            item["purl"] = purl_info
                             element["product_version"] = purl_info.to_dict()["version"]
-                    item = {}
                     item["vendor"] = element.get("vendor", None)
                     item["product"] = element.get("product_name", "Not defined")
                     item["version"] = element.get("product_version", None)
@@ -216,7 +222,7 @@ class CSAFParser(VEX_Parser):
                         item["version"] = element.get("product_version_range", None)
                     item["family"] = element.get("product_family", "")
                     id = element.get("product_id", None)
-                    if id is not None and id not in self.product:
-                        self.product[id] = item
+                    if id is not None and id not in self.products:
+                        self.products[id] = item
                     # element = {}
         return element
